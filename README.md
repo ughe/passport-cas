@@ -1,27 +1,26 @@
-# passport-cas
+# passport-pucas
 
-Forked from Indiana University CAS authentication strategies for Passport and adapted for any CAS system.
+Forked from Indiana University CAS authentication strategies for Passport and adapted for Princeton's CAS system.
 
 ## Install
 
 ```
-yarn
+yarn add https://github.com/ughe/passport-pucas
 ```
 
 #### Configure Strategy
 
 ```
-const options = {
-    casURL: "https://cas.iu.edu/cas",
-//  serviceURL: '',
-}
+var passport = require('passport');
+var cas = require('passport-pucas');
 
-const verify = function(username, done) {
-    console.log('TODO - find '+username+' in the db or such..');
-    return done(null, {username: username, email: 'user@email.com'});
-}
-
-var cas_strategy = new cas.Strategy(options, verify);
+var cas_strategy = new cas.Strategy(
+    {casURL: "https://fed.princeton.edu/cas"},
+    function(username, done) {
+        console.log('TODO - find '+username+' in the db or such..');
+        return done(null, {username: username, email: 'user@email.com'});
+    }
+);
 passport.use(cas_strategy);
 ```
 
@@ -29,7 +28,7 @@ passport.use(cas_strategy);
 
 ```
     //access this to login via IU CAS
-    app.use('/protected', passport.authenticate('cas', { failureRedirect: '/cas/fail' }), function(req, res, next) {
+    app.use('/protected', passport.authenticate('pucas', { failureRedirect: '/cas/fail' }), function(req, res, next) {
         //user object can be accessed via req.user
         //render your protected content
     });
@@ -52,6 +51,24 @@ Instead of authenticating everytime you access /protected, you can do something 
 
 And make /login to the actual authentication. This requires you to use session so that your user object will be persisted. Please see 
 /test/app.js for more details.
+
+#### Logout Strategy
+
+```
+    var logout_url = cas_strategy.logout(req, res);
+    res.redirect(logout_url);
+```
+
+## Testing
+
+Clone this repo then cd and run:
+
+```
+yarn start
+```
+
+Go to: [http://localhost:12345](http://localhost:12345)
+
 
 ## License
 

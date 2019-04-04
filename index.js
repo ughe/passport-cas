@@ -5,26 +5,19 @@ var url = require('url'),
 
 function Strategy(options, verify) {
     if (!verify || (typeof verify != 'function')) {
-        throw new Error('CAS authentication strategy requires a verify function');
+        throw new Error('PU CAS authentication strategy requires a verify function');
     }
     this.casURL = options.casURL;
-    this.service = options.service || 'CAS';
     this.serviceURL = options.serviceURL; //optional - if not set, authenticate will use current URL
-
     passport.Strategy.call(this);
-    this.name = 'cas';
+    this.name = 'pucas';
     this._verify = verify;
-    this._passReqToCallback = options.passReqToCallback;
 }
 util.inherits(Strategy, passport.Strategy);
 
 Strategy.prototype.authenticate = function (req, options) {
-    options = options || {};
-    if(this.serviceURL) {
-        var serviceURL = this.serviceURL;
-    } else {
-        //use the current url
-        var serviceURL = req.protocol + '://' + req.get('host') + req.originalUrl;
+    if(!this.serviceURL) {
+        this.serviceURL = req.protocol + '://' + req.get('host') + req.originalUrl; //use the current url
     }
 
     var self = this;
@@ -36,20 +29,11 @@ Strategy.prototype.authenticate = function (req, options) {
         self.success(user, info);
     };
 
-    //handling logout?
-    var relayState = req.query.RelayState;
-    if (relayState) {
-        console.log("handling logout");
-        req.logout();
-        return this.redirect(this.casURL+'/logout');
-    }
-
     //redirect to cas for the first time
-    if (!req.query.casticket) {
+    if (!req.query.ticket) {
         var redirectURL = url.parse(this.casURL+'/login');
         redirectURL.query = {
-            cassvc: this.service, 
-            casurl: serviceURL
+            service: this.serviceURL,
         };
         return this.redirect(url.format(redirectURL));
     }
@@ -57,9 +41,8 @@ Strategy.prototype.authenticate = function (req, options) {
     //got ticket! validate it.
     var validateURL = url.parse(this.casURL+'/validate');
     validateURL.query = {
-        cassvc: this.service, 
-        casticket: req.query.casticket,
-        casurl: serviceURL
+        ticket: req.query.ticket,
+        service: this.serviceURL.split('?')[0],
     }
     https.get(url.format(validateURL), function(res) {
         var body = '';
@@ -83,5 +66,14 @@ Strategy.prototype.authenticate = function (req, options) {
         self.error(new Error(e));
     });
 };
+
+Strategy.prototype.logout = function(req, res) {
+    var redirectURL = url.parse(this.casURL+'/logout');
+    redirectURL.query = {
+        service: req.protocol + '://' + req.get('host'),
+    };
+    req.logout();
+    return url.format(redirectURL);
+}
 
 exports.Strategy = Strategy;

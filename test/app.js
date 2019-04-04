@@ -3,17 +3,12 @@ var logger = require('morgan');
 var express = require('express');
 var path = require('path');
 var passport = require('passport');
-var cas = require('../index.js'); //or 'passport-cas';
+var cas = require('../index.js'); //or 'passport-pucas'
 var session = require('express-session');
 
 var app = express();
 
-const options = {
-    casURL: "https://cas.iu.edu/cas",
-//  serviceURL: '',
-//  service: '',
-    passReqToCallback: false,
-}
+const options = { casURL: "https://fed.princeton.edu/cas" }
 
 const verify = function(username, done) {
     console.log('TODO - find '+username+' in the db or such..');
@@ -43,14 +38,14 @@ passport.deserializeUser(function(username, done) {
 });
 
 //access this to login via IU CAS
-app.use('/login', passport.authenticate('cas', { failureRedirect: '/cas/fail' }), function(req, res, next) {
+app.use('/login', passport.authenticate('pucas', { failureRedirect: '/cas/fail' }), function(req, res, next) {
     console.log("successfully logged in as "+req.user.username);
     res.redirect('/');
 });
 //access this to logout
 app.use('/logout', function(req, res, next) {
-    req.logout();
-    res.redirect('/');
+    var logout_url = cas_strategy.logout(req, res);
+    res.redirect(logout_url);
 });
 
 function ensureAuth(req, res, next) {

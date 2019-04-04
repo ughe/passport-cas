@@ -1,9 +1,11 @@
 {
-  "name": "passport-cas",
+  "name": "passport-pucas",
   "version": "0.0.1",
-  "description": "Indiana University Cas authentication strategies for Passport. Genralized for any CAS.",
+  "description": "Princeton University CAS created from the Indiana University Cas authentication strategy for Passport",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "yarn && node test/app.js"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:ughe/passport-cas.git"
