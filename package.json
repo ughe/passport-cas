@@ -1,12 +1,12 @@
 {
-  "name": "passport-iucas",
+  "name": "passport-cas",
   "version": "0.0.1",
-  "description": "Indiana University Cas authentication strategies for Passport.",
+  "description": "Indiana University Cas authentication strategies for Passport. Genralized for any CAS.",
   "main": "index.js",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git@github.com:soichih/passport-iucas.git"
+    "url": "git@github.com:ughe/passport-cas.git"
   },
   "keywords": [
     "passport",
@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/soichih/passport-iucas/issues"
   },
-  "homepage": "https://github.com/soichih/passport-iucas",
+  "homepage": "https://github.com/ughe/passport-cas",
   "dependencies": {
     "passport": "~0.1.18"
   },

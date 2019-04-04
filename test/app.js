@@ -3,10 +3,22 @@ var logger = require('morgan');
 var express = require('express');
 var path = require('path');
 var passport = require('passport');
-var iucas = require('../index.js'); //or 'passport-iucas';
+var cas = require('../index.js'); //or 'passport-cas';
 var session = require('express-session');
 
 var app = express();
+
+const options = {
+    casURL: "https://cas.iu.edu/cas",
+//  serviceURL: '',
+//  service: '',
+    passReqToCallback: false,
+}
+
+const verify = function(username, done) {
+    console.log('TODO - find '+username+' in the db or such..');
+    return done(null, {username: username, email: 'user@email.com'});
+}
 
 app.set('views', __dirname +'/views');
 
@@ -15,11 +27,9 @@ app.use(session({secret: 'session secret'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-var iucas_strategy = new iucas.Strategy(function(username, done) {
-    console.log('TODO - find '+username+' in the db or such..');
-    return done(null, {username: username, email: 'user@email.com'});
-});
-passport.use(iucas_strategy);
+var cas_strategy = new cas.Strategy(options, verify);
+
+passport.use(cas_strategy);
 
 //used to support session
 passport.serializeUser(function(user, done) {
@@ -33,7 +43,7 @@ passport.deserializeUser(function(username, done) {
 });
 
 //access this to login via IU CAS
-app.use('/login', passport.authenticate('iucas', { failureRedirect: '/iucas/fail' }), function(req, res, next) {
+app.use('/login', passport.authenticate('cas', { failureRedirect: '/cas/fail' }), function(req, res, next) {
     console.log("successfully logged in as "+req.user.username);
     res.redirect('/');
 });

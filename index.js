@@ -4,18 +4,15 @@ var url = require('url'),
     passport = require('passport')
 
 function Strategy(options, verify) {
-    if (typeof options == 'function') {
-        verify = options;
-        options = {};
+    if (!verify || (typeof verify != 'function')) {
+        throw new Error('CAS authentication strategy requires a verify function');
     }
-    if (!verify) { throw new Error('IU cas authentication strategy requires a verify function'); }
-
-    this.casURL = "https://cas.iu.edu/cas";
-    this.service = options.service || 'IU';
+    this.casURL = options.casURL;
+    this.service = options.service || 'CAS';
     this.serviceURL = options.serviceURL; //optional - if not set, authenticate will use current URL
 
     passport.Strategy.call(this);
-    this.name = 'iucas';
+    this.name = 'cas';
     this._verify = verify;
     this._passReqToCallback = options.passReqToCallback;
 }
